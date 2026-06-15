@@ -13,6 +13,8 @@ $env:PYTHONPATH='..'
 uvicorn app.main:app --reload
 ```
 
+Edit `..\.env` before starting the backend. At minimum, set `DATABASE_URL` and a strong `JWT_SECRET`.
+
 The API is available at `http://localhost:8000` and OpenAPI docs at `http://localhost:8000/docs`.
 
 From the repo root, backend checks can be run with:

@@ -2,9 +2,11 @@
 
 ## Secrets
 
-Secrets must come from environment variables. Do not hardcode JWT secrets, database URLs, API keys, ML keys, or cloud storage credentials.
+Secrets and connection strings must come from environment variables. Do not hardcode JWT secrets, database URLs, API keys, ML keys, or cloud storage credentials in application code.
 
 Local development uses `.env`; CI/CD uses GitHub Actions Secrets.
+
+`DATABASE_URL` and `JWT_SECRET` are required backend settings. The backend should fail to start if either is missing.
 
 ## API Controls
 

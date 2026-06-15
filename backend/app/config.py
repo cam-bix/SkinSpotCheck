@@ -6,8 +6,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     app_env: str = "development"
-    database_url: str = "postgresql+psycopg://skinspotcheck:skinspotcheck@localhost:5432/skinspotcheck"
-    jwt_secret: str = Field(default="change-me-in-local-env", min_length=16)
+    database_url: str
+    jwt_secret: str = Field(min_length=16)
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
     cors_origins: str = "http://localhost:19006,http://localhost:8081,exp://localhost:8081"
