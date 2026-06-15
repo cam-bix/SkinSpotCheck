@@ -1,0 +1,1 @@
+"""SkinSpotCheck FastAPI application package."""
