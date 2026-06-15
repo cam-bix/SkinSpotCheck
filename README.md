@@ -28,6 +28,8 @@ python -m ruff check backend ml
 cd mobile && npm run typecheck
 ```
 
+CI runs these same checks on pushes and pull requests. Keep `.env` local only; use GitHub Actions Secrets for deployment credentials or stronger CI secrets.
+
 ## Safety Position
 
 The initial ML pipeline is intentionally conservative and placeholder-only. It does not claim medical accuracy. See [docs/ml_safety.md](docs/ml_safety.md).

@@ -9,10 +9,18 @@ python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements-dev.txt
 copy ..\.env.example ..\.env
+$env:PYTHONPATH='..'
 uvicorn app.main:app --reload
 ```
 
 The API is available at `http://localhost:8000` and OpenAPI docs at `http://localhost:8000/docs`.
+
+From the repo root, backend checks can be run with:
+
+```bash
+python -m ruff check backend ml
+python -m pytest backend/tests
+```
 
 ## Database
 
@@ -33,6 +41,7 @@ npm run android
 ```
 
 Android emulator requests to the host backend should use `http://10.0.2.2:8000`.
+Run `npm run typecheck` before committing mobile changes.
 
 ## Secrets
 

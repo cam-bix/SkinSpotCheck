@@ -63,6 +63,29 @@ def test_register_login_and_scan_history() -> None:
     assert history[0]["id"] == scan["id"]
 
 
+def test_login_rejects_invalid_password() -> None:
+    register_response = client.post(
+        "/auth/register", json={"email": "wrong-password@example.com", "password": "strong-password"}
+    )
+    assert register_response.status_code == 201
+
+    response = client.post(
+        "/auth/login", json={"email": "wrong-password@example.com", "password": "bad-password"}
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid email or password."
+
+
+def test_scan_requires_authentication() -> None:
+    response = client.post(
+        "/scan",
+        files={"image": ("spot.png", make_png(), "image/png")},
+    )
+
+    assert response.status_code == 401
+
+
 def test_scan_rejects_bad_content_type() -> None:
     token = register_and_login("bad-file@example.com")
     response = client.post(
@@ -71,3 +94,15 @@ def test_scan_rejects_bad_content_type() -> None:
         files={"image": ("notes.txt", BytesIO(b"not an image"), "text/plain")},
     )
     assert response.status_code == 415
+
+
+def test_scan_rejects_invalid_image_bytes() -> None:
+    token = register_and_login("invalid-image@example.com")
+    response = client.post(
+        "/scan",
+        headers={"Authorization": f"Bearer {token}"},
+        files={"image": ("spot.png", BytesIO(b"not really a png"), "image/png")},
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Invalid image file."
