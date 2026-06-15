@@ -2,9 +2,12 @@ from io import BytesIO
 
 from fastapi.testclient import TestClient
 from PIL import Image
+from sqlalchemy import select
 
 from app.config import get_settings
+from app.database import SessionLocal
 from app.main import app
+from app.models import AuditLog, Scan
 from app.schemas import DISCLAIMER
 
 client = TestClient(app)
@@ -62,6 +65,38 @@ def test_register_login_and_scan_history() -> None:
     history = history_response.json()
     assert len(history) == 1
     assert history[0]["id"] == scan["id"]
+
+    with SessionLocal() as db:
+        scan_record = db.scalar(select(Scan).where(Scan.id == scan["id"]))
+        assert scan_record is not None
+        audit_actions = list(
+            db.scalars(
+                select(AuditLog.action)
+                .where(AuditLog.user_id == scan_record.user_id)
+                .order_by(AuditLog.created_at)
+            )
+        )
+    assert audit_actions == ["auth.register", "auth.login", "scan.create"]
+
+
+def test_scan_sanitizes_original_filename_metadata() -> None:
+    token = register_and_login("filename-user@example.com")
+    response = client.post(
+        "/scan",
+        headers={"Authorization": f"Bearer {token}"},
+        files={"image": ("..\\unsafe spot name!.png", make_png(), "image/png")},
+    )
+
+    assert response.status_code == 201
+    scan_id = response.json()["id"]
+
+    with SessionLocal() as db:
+        scan = db.scalar(select(Scan).where(Scan.id == scan_id))
+
+    assert scan is not None
+    assert scan.original_filename == "unsafe_spot_name_.png"
+    assert "\\" not in scan.original_filename
+    assert "/" not in scan.original_filename
 
 
 def test_login_rejects_invalid_password() -> None:

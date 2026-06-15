@@ -1,5 +1,6 @@
 from io import BytesIO
 from pathlib import Path
+import re
 
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, status
 from PIL import Image, UnidentifiedImageError
@@ -18,6 +19,7 @@ from ml.inference import predict_skin_spot
 
 router = APIRouter(tags=["scan"])
 ALLOWED_CONTENT_TYPES = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}
+SAFE_FILENAME_PATTERN = re.compile(r"[^A-Za-z0-9._-]+")
 
 
 async def read_limited_upload(file: UploadFile) -> bytes:
@@ -39,6 +41,12 @@ def validate_image(file: UploadFile, content: bytes) -> str:
     return ALLOWED_CONTENT_TYPES[file.content_type]
 
 
+def sanitize_original_filename(filename: str | None) -> str:
+    name = Path(filename or "upload").name
+    sanitized = SAFE_FILENAME_PATTERN.sub("_", name).strip("._-")
+    return (sanitized or "upload")[:255]
+
+
 @router.post("/scan", response_model=ScanResult, status_code=status.HTTP_201_CREATED)
 @limiter.limit(get_settings().rate_limit_scan)
 async def create_scan(
@@ -53,10 +61,9 @@ async def create_scan(
     stored_path = storage.save(content, suffix)
     prediction = predict_skin_spot(BytesIO(content))
 
-    original_name = Path(image.filename or "upload").name[:255]
     scan = Scan(
         user_id=current_user.id,
-        original_filename=original_name,
+        original_filename=sanitize_original_filename(image.filename),
         stored_path=stored_path,
         result=prediction.result,
         confidence=prediction.confidence,
