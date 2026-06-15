@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "SkinSpotCheck",
+    "slug": "skinspotcheck",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "platforms": ["android"],
+    "scheme": "skinspotcheck",
+    "userInterfaceStyle": "light",
+    "android": {
+      "package": "com.cambix.skinspotcheck",
+      "permissions": ["CAMERA", "READ_MEDIA_IMAGES"]
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "SkinSpotCheck lets you select a spot photo for rough risk screening.",
+          "cameraPermission": "SkinSpotCheck lets you take a spot photo for rough risk screening."
+        }
+      ],
+      "expo-secure-store"
+    ],
+    "extra": {
+      "apiBaseUrl": "http://10.0.2.2:8000"
+    }
+  }
+}
