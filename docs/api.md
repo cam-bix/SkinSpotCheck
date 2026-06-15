@@ -11,3 +11,18 @@ FastAPI exposes interactive OpenAPI docs at `/docs`.
 - `GET /scan/history` - list the authenticated user's scan metadata
 
 All authenticated endpoints use `Authorization: Bearer <token>`.
+
+## Scan Response
+
+`POST /scan` returns one of:
+
+- `Low concern`
+- `Medium concern`
+- `High concern`
+- `Unable to analyze`
+
+The placeholder model currently returns `Unable to analyze` with no confidence score. Every result includes `This is not a diagnosis.`
+
+## Upload Validation
+
+The backend accepts JPEG, PNG, and WebP files up to `MAX_UPLOAD_BYTES`. It verifies the image before storage and stores sanitized metadata only.

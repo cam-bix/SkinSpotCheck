@@ -14,11 +14,19 @@ Important: SkinSpotCheck is not a medical device and does not provide a diagnosi
 ## Local Setup
 
 1. Copy `.env.example` to `.env` and replace placeholder values.
-2. Start PostgreSQL locally and create the `skinspotcheck` database/user, or update `DATABASE_URL`.
+2. Start PostgreSQL and Redis with `docker compose up -d`, or update `DATABASE_URL` and `REDIS_URL`.
 3. Run the backend from `backend/`.
 4. Run the mobile app from `mobile/` with Expo for Android.
 
 See [docs/setup.md](docs/setup.md) for step-by-step instructions.
+
+## Development Checks
+
+```bash
+python -m pytest backend/tests
+python -m ruff check backend ml
+cd mobile && npm run typecheck
+```
 
 ## Safety Position
 

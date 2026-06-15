@@ -3,6 +3,7 @@
 ## Backend
 
 ```bash
+docker compose up -d
 cd backend
 python -m venv .venv
 .venv\Scripts\activate
@@ -17,7 +18,11 @@ The API is available at `http://localhost:8000` and OpenAPI docs at `http://loca
 
 Create a PostgreSQL database and update `DATABASE_URL` in `.env`.
 
-For local experimentation, tests use SQLite in memory and do not require PostgreSQL.
+Backend tests use SQLite and do not require PostgreSQL.
+
+## Redis Rate Limiting
+
+Set `REDIS_URL=redis://localhost:6379/0` in `.env` to use Redis-backed rate limiting. If `REDIS_URL` is blank, the backend falls back to in-memory rate limiting for local development.
 
 ## Mobile
 
@@ -32,3 +37,9 @@ Android emulator requests to the host backend should use `http://10.0.2.2:8000`.
 ## Secrets
 
 Never commit `.env` files. Use local `.env` files for development and GitHub Actions Secrets for CI/CD.
+
+Recommended GitHub repository secrets:
+
+- `JWT_SECRET`
+- Production `DATABASE_URL`, if deployment workflows are added later
+- Cloud object storage credentials, if cloud storage is added later
