@@ -13,19 +13,24 @@ from app.models import Scan, User
 from app.rate_limit import limiter
 from app.schemas import DISCLAIMER, ScanResult
 from app.security import get_current_user
-from app.storage import LocalStorage
+from app.storage import get_storage
 from ml.inference import predict_skin_spot
 
 router = APIRouter(tags=["scan"])
 ALLOWED_CONTENT_TYPES = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}
 
 
-def validate_image(file: UploadFile, content: bytes) -> str:
+async def read_limited_upload(file: UploadFile) -> bytes:
     settings = get_settings()
-    if file.content_type not in ALLOWED_CONTENT_TYPES:
-        raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail="Unsupported image type.")
+    content = await file.read(settings.max_upload_bytes + 1)
     if len(content) > settings.max_upload_bytes:
         raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="Image is too large.")
+    return content
+
+
+def validate_image(file: UploadFile, content: bytes) -> str:
+    if file.content_type not in ALLOWED_CONTENT_TYPES:
+        raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail="Unsupported image type.")
     try:
         with Image.open(BytesIO(content)) as image:
             image.verify()
@@ -42,10 +47,10 @@ async def create_scan(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> Scan:
-    content = await image.read()
+    content = await read_limited_upload(image)
     suffix = validate_image(image, content)
-    storage = LocalStorage(get_settings().upload_dir)
-    stored_path = storage.save(image, content, suffix)
+    storage = get_storage(get_settings().upload_dir)
+    stored_path = storage.save(content, suffix)
     prediction = predict_skin_spot(BytesIO(content))
 
     original_name = Path(image.filename or "upload").name[:255]

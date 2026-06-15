@@ -3,6 +3,7 @@ from io import BytesIO
 from fastapi.testclient import TestClient
 from PIL import Image
 
+from app.config import get_settings
 from app.main import app
 from app.schemas import DISCLAIMER
 
@@ -94,6 +95,20 @@ def test_scan_rejects_bad_content_type() -> None:
         files={"image": ("notes.txt", BytesIO(b"not an image"), "text/plain")},
     )
     assert response.status_code == 415
+
+
+def test_scan_rejects_oversized_upload_before_image_parse() -> None:
+    token = register_and_login("large-image@example.com")
+    oversized_content = BytesIO(b"x" * (get_settings().max_upload_bytes + 1))
+
+    response = client.post(
+        "/scan",
+        headers={"Authorization": f"Bearer {token}"},
+        files={"image": ("large.png", oversized_content, "image/png")},
+    )
+
+    assert response.status_code == 413
+    assert response.json()["detail"] == "Image is too large."
 
 
 def test_scan_rejects_invalid_image_bytes() -> None:

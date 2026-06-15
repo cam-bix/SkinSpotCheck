@@ -7,7 +7,7 @@ SkinSpotCheck uses a mobile client, API backend, PostgreSQL database, local deve
 - Mobile: Expo React Native TypeScript app focused on Android.
 - Backend: FastAPI application with OpenAPI docs, JWT auth, validation, rate limiting, and audit logs.
 - Database: PostgreSQL stores users, scan metadata, and audit events.
-- Storage: local filesystem storage for development. The storage service exposes a small interface so cloud object storage can replace it later.
+- Storage: local filesystem storage for development. The storage module exposes a small `StorageBackend` protocol and `get_storage()` factory so a cloud object storage backend can replace local disk later.
 - ML: placeholder inference function in `ml/` with a stable `predict_skin_spot(image) -> prediction` interface.
 
 ## Data Flow
