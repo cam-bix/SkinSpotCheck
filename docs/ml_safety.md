@@ -2,6 +2,8 @@
 
 The initial model is a placeholder inference pipeline. It is not trained on a validated dermatology dataset and must not be presented as medically accurate.
 
+The future model integration path is PyTorch. PyTorch dependencies live under `ml/requirements.txt` and are optional until a validated model exists. The backend runtime intentionally does not install PyTorch for the placeholder.
+
 ## Requirements Before Real Deployment
 
 - Train and validate with a legitimate dermatology dataset.

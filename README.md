@@ -8,7 +8,7 @@ Important: SkinSpotCheck is not a medical device and does not provide a diagnosi
 
 - `mobile/` - React Native Expo Android app written in TypeScript
 - `backend/` - FastAPI backend with JWT auth, PostgreSQL models, scan endpoints, storage, and tests
-- `ml/` - Replaceable placeholder ML inference interface
+- `ml/` - Replaceable placeholder ML inference interface and optional PyTorch adapter scaffold
 - `docs/` - Architecture, setup, API, and safety documentation
 
 ## Local Setup

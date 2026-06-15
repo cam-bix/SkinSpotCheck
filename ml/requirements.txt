@@ -1,0 +1,4 @@
+# Optional ML training/inference dependencies.
+# The backend placeholder does not install these by default.
+torch>=2.4
+torchvision>=0.19
